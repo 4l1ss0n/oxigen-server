@@ -1,0 +1,170 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// generator erd {
+//   provider = "prisma-erd-generator"
+// }
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum Priority {
+  OWNER
+  GERENT
+  EMPLOYEES
+}
+
+model Vehicles {
+  id String @id @default(uuid())
+  name String 
+  brand String
+  carId String
+  color String
+  chassiNumber String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model Clients {
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  pswhs String
+  personId String
+  gender Gender 
+  birthday DateTime
+
+  enterprise Enterprises? @relation(fields: [enterpriseId], references: [id]) 
+  enterpriseId String?
+
+  convenio Convenios? @relation(fields: [convenioId], references: [id])
+  convenioId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt 
+}
+
+model Enterprises {
+  id String @id @default(uuid())
+  name String 
+  fantasyName String
+  corporationEmail String @unique
+  size Int
+  cnpj String @unique
+  accessKey String
+
+  activeClients Clients[]
+  convenios Convenios[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt 
+}
+
+model Employees {
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  pswhs String
+  personId String
+  gender Gender 
+  birthday DateTime
+  responsabity Priority @default(EMPLOYEES)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt 
+}
+
+model Products {
+  id String @id @default(uuid())
+  name String
+  description String
+  quantity Int
+  cost Float
+  color String?
+  components String[]
+
+  supliers ProductSupiers[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt 
+}
+
+model Supliers {
+  id String @id @default(uuid())
+  name String
+  cnpj String @unique
+  category String
+
+  product ProductSupiers[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt 
+}
+
+model Convenios {
+  id String @id @default(uuid())
+  type String
+
+  clientId Clients[]
+  enterprise Enterprises @relation(fields: [enterpriseId], references: [id])
+  enterpriseId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt 
+}
+
+model ProductSupiers {
+  id String @id @default(uuid())
+
+  product Products @relation(fields: [productId], references: [id])
+  productId String
+
+  suplier Supliers @relation(fields: [suplierId], references: [id])
+  suplierId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt 
+}
+
+model ProductMovements {
+  id String @id @default(uuid())
+  productid String[]
+  quantity Int[]
+  description String
+  driverId String
+  vehicleId String
+
+  createdAt DateTime @default(now())
+}
+
+// model ProductLocations {
+//   id String @id @default(uuid())
+
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt 
+// }
+
+model ProductSales {
+  id String @id @default(uuid())
+  clientId String
+  productId String
+  quantity Int
+  total Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt 
+}
