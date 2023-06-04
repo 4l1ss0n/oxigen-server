@@ -4,6 +4,7 @@ import ClientsControllers from "./controllers/ClientsControllers";
 import EnterpriseControllers from "./controllers/EnterpriseControllers";
 import ProductsControllers from "./controllers/ProductsControllers";
 import SupliersControllers from "./controllers/SupliersControllers";
+import EmployeesControllers from "./controllers/EmployeesControllers";
 
 
 
@@ -11,7 +12,8 @@ const routes = Router();
 const clients = new ClientsControllers();
 const enterprise = new EnterpriseControllers();
 const products = new ProductsControllers();
-const supliers = new SupliersControllers();3
+const supliers = new SupliersControllers();
+const employees = new EmployeesControllers();
 
 routes.get("/", (req, res) => {return res.json(["ok"])});
 
@@ -38,5 +40,11 @@ routes.get("/suplier/:id", supliers.show);
 routes.post("/suplier/create", supliers.store);
 routes.put("/suplier/update/:id", supliers.update);
 routes.delete("/suplier/delete/:id", supliers.delete);
+
+routes.get("/employees", employees.index);
+routes.get("/employee/:id", employees.show);
+routes.post("/employee/create", employees.store);
+routes.put("/employee/update/:id", employees.update);
+routes.delete("/employee/delete/:id", employees.delete);
 
 export default routes;
