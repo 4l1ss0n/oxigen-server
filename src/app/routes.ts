@@ -2,11 +2,14 @@ import { Router, response } from "express";
 
 import ClientsControllers from "./controllers/ClientsControllers";
 import EnterpriseControllers from "./controllers/EnterpriseControllers";
+import ProductsControllers from "./controllers/ProductsControllers";
+
 
 
 const routes = Router();
 const clients = new ClientsControllers();
 const enterprise = new EnterpriseControllers();
+const products = new ProductsControllers();
 
 routes.get("/", (req, res) => {return res.json(["ok"])});
 
@@ -21,5 +24,11 @@ routes.get("/enterprise/:id", enterprise.show);
 routes.post("/enterprise/create", enterprise.store);
 routes.put("/enterprise/update/:id", enterprise.update);
 routes.delete("/enterprise/delete/:id", enterprise.delete);
+
+routes.get("/products", products.index);
+routes.get("/product/:id", products.show);
+routes.post("/product/create", products.store);
+routes.put("/product/update/:id", products.update);
+routes.delete("/product/delete/:id", products.delete);
 
 export default routes;
