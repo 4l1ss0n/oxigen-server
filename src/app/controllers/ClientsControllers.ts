@@ -6,7 +6,7 @@ import { database } from "../../database/src";
 class ClientsControllers {
     async index(req: Req, res: Res): Promise<Res<any>> {
         try {
-            const client = database.clients.findMany();
+            const client = await database.clients.findMany();
             return res.json({data: [
                 client
             ]});
@@ -41,7 +41,11 @@ class ClientsControllers {
                     gender: gender === "M" || gender === "m" ? "MALE": "FEMALE",
                     personId: cpf,
                     convenio: {},
-                    enterprise: enterpriseId 
+                    enterprise: {
+                        connect: {
+                            id: enterpriseId
+                        }
+                    } 
                 }   
             })
             return res.json({ok: true});
@@ -51,7 +55,32 @@ class ClientsControllers {
         }
     };
     async update(req: Req, res: Res): Promise<Res<any>> {
+        const {
+            name,
+            email,
+            password,
+            birthday,
+        } = req.body;
+        const {id} = req.params;
         try {
+            const client = await database.clients.findUnique({
+                where: {
+                    id
+                }
+            });
+            if (!client) return res.status(404).json({err: "client not found"});
+
+            await database.clients.update({
+                where:{
+                    id
+                },
+                data: {
+                    name: name ? name : client.name,
+                    email: email ? email : client.email,
+                    pswhs: password ? await bcrypt.hash(password, 2) : client.pswhs,
+                    birthday: birthday ? new Date(birthday) : client.birthday,
+                }
+            })
             return res.json({ok: true});
         } catch (err) {
             return res.status(500).json({ok: true});
