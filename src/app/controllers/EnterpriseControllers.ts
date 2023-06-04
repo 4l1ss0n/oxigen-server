@@ -5,10 +5,12 @@ import bcrypt from "bcrypt";
 class EnterpriseControllers {
     async index(req: Req, res: Res): Promise<Res<any>> {
         try {
-            const enterprise = database.enterprises.findMany();
-            return res.json({data: [
-                enterprise
-            ]});
+            const enterprise = await database.enterprises.findMany({
+                include: {
+                    _count: true
+                }
+            });
+            return res.json({data: enterprise});
         } catch (err) {
             return res.status(500).json({ok: true});
         }
@@ -22,7 +24,7 @@ class EnterpriseControllers {
                 }
             })
             if (!enterprise) return res.status(404).json({err: "enterprise not found"});
-            return res.json({ok: true});
+            return res.json(enterprise);
         } catch (err) {
             return res.status(500).json({ok: true});
         }
@@ -33,16 +35,17 @@ class EnterpriseControllers {
             fantasyName,
             name,
             corporationEmail,
-            password
+            password,
+            size
         } = req.body;
         try {
             await database.enterprises.create({
                 data: {
                     cnpj,
-                    corparationEmail: corporationEmail,
+                    corporationEmail,
                     fantasyName,
                     name,
-                    size:2,
+                    size,
                     activeClients:{},
                     convenios: {},
                     accessKey: await bcrypt.hash(password, 2)
@@ -55,7 +58,30 @@ class EnterpriseControllers {
         }
     };
     async update(req: Req, res: Res): Promise<Res<any>> {
+        const {
+            corporationEmail,
+            password,
+            size
+        } = req.body;
+        const {id} = req.params;
         try {
+            const enterprise = await database.enterprises.findUnique({
+                where: {
+                    id
+                }
+            })
+            if (!enterprise) return res.status(404).json({err: "enterprise not found"});
+
+            await database.enterprises.update({
+                where: {
+                    id
+                },
+                data: {
+                    corporationEmail: corporationEmail ? corporationEmail: enterprise.corporationEmail,
+                    accessKey: password ? await bcrypt.hash(password, 2): enterprise.accessKey,
+                    size: size ? size : enterprise.size
+                }
+            })
             return res.json({ok: true});
         } catch (err) {
             return res.status(500).json({ok: true});
