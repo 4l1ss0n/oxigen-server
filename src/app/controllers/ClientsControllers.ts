@@ -6,19 +6,48 @@ import { database } from "../../database/src";
 class ClientsControllers {
     async index(req: Req, res: Res): Promise<Res<any>> {
         try {
-            const client = await database.clients.findMany();
-            return res.json({data: [
-                client
-            ]});
+            const client = await database.clients.findMany({
+                select: {
+                    id: true,
+                    name:  true,
+                    email: true,
+                    gender: true,
+                    convenio: {
+                        include: {
+                            _count: true
+                        }
+                    }
+                }
+            });
+            return res.status(200).json({data: client});
         } catch (err) {
+            console.log(err);
             return res.status(500).json({ok: true});
         }
     };
     async show(req: Req, res: Res): Promise<Res<any>> {
+        const {id} = req.params;
         try {
-            return res.json({ok: true});
+            const client = await database.clients.findUnique({
+                where: {id},
+                select: {
+                    id: true,
+                    name:  true,
+                    email: true,
+                    gender: true,
+                    personId: true,
+                    birthday: true,
+                    convenio: {
+                        include: {
+                            _count: true
+                        }
+                    }
+                }
+            });
+            if (!client) return res.status(404).json({err: "client not found"});
+            return res.json({data: client});
         } catch (err) {
-            return res.status(500).json({ok: true});
+            return res.status(500).json({err: "something went wrong"});
         }
     };
     async store(req: Req, res: Res): Promise<Res<any>> {
@@ -32,13 +61,13 @@ class ClientsControllers {
             enterpriseId
         } = req.body;
         try {
-            await database.clients.create({
+            const client = await database.clients.create({
                 data: {
                     name,
                     email,
                     pswhs: await bcrypt.hash(password, 2),
                     birthday: new Date(birthday),
-                    gender: gender === "M" || gender === "m" ? "MALE": "FEMALE",
+                    gender: gender.toUpperCase() === "M"? "MALE": "FEMALE",
                     personId: cpf,
                     convenio: {},
                     enterprise: {
@@ -48,10 +77,13 @@ class ClientsControllers {
                     } 
                 }   
             })
-            return res.json({ok: true});
+            return res.json({data: {
+                created: true,
+                id: client.id
+            }});
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ok: true});
+            return res.status(500).json({err: "something went wrong"});
         }
     };
     async update(req: Req, res: Res): Promise<Res<any>> {
@@ -63,6 +95,7 @@ class ClientsControllers {
         } = req.body;
         const {id} = req.params;
         try {
+            if (!(name || email || password || birthday)) return res.status(401).json({err: "missing data"});
             const client = await database.clients.findUnique({
                 where: {
                     id
@@ -83,14 +116,16 @@ class ClientsControllers {
             })
             return res.json({ok: true});
         } catch (err) {
-            return res.status(500).json({ok: true});
+            console.log(err);
+            return res.status(500).json({err: "something went wrong"});
         }
     };
     async delete(req: Req, res: Res): Promise<Res<any>> {
         try {
             return res.json({ok: true});
         } catch (err) {
-            return res.status(500).json({ok: true});
+            console.log(err);
+            return res.status(500).json({err: "something went wrong"});
         }
     };
 }

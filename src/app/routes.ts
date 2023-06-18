@@ -5,6 +5,7 @@ import EnterpriseControllers from "./controllers/EnterpriseControllers";
 import ProductsControllers from "./controllers/ProductsControllers";
 import SupliersControllers from "./controllers/SupliersControllers";
 import EmployeesControllers from "./controllers/EmployeesControllers";
+import AuthControllers from "./controllers/AuthControllers";
 
 
 
@@ -14,6 +15,7 @@ const enterprise = new EnterpriseControllers();
 const products = new ProductsControllers();
 const supliers = new SupliersControllers();
 const employees = new EmployeesControllers();
+const auth = new AuthControllers();
 
 routes.get("/", (req, res) => {return res.json(["ok"])});
 
@@ -46,5 +48,8 @@ routes.get("/employee/:id", employees.show);
 routes.post("/employee/create", employees.store);
 routes.put("/employee/update/:id", employees.update);
 routes.delete("/employee/delete/:id", employees.delete);
+
+routes.get("/login", auth.login);
+routes.post("/register", auth.register);
 
 export default routes;
