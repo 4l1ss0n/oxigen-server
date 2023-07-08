@@ -7,11 +7,9 @@ class EmployeesControllers {
         try {
             const employees = await database.employees.findMany({
                 select: {
-                    name: true,
-                    email: true,
-                    responsabity: true,
-                    gender:  true,
                     id: true,
+                    name: true,
+                    responsabity: true
                 }
             });
             return res.json({data: employees});
@@ -26,7 +24,17 @@ class EmployeesControllers {
             if(!id) return res.status(404).json({err: "missing datas"});
             
             const employee = await database.employees.findUnique({
-                where: {id}
+                where: {id},
+                select: {
+                    id: true,
+                    name: true,
+                    responsabity: true,
+                    birthday: true,
+                    email: true,
+                    gender: true,
+                    personId: true,
+
+                }
             });
             if (!employee) return res.status(404).json({err: "employee not found"});
             return res.json({data: employee});
@@ -45,7 +53,7 @@ class EmployeesControllers {
             gender
         } = req.body;
         try {
-            await database.employees.create({
+            const deployee = await database.employees.create({
                 data: {
                     name,
                     birthday: new Date(birthday),
@@ -55,10 +63,13 @@ class EmployeesControllers {
                     pswhs: await bcrypt.hash(password, 2)
                 }
             })
-            return res.json({ok: true});
+            return res.json({
+                created: true,
+                id: deployee.id
+            });
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ok: false});
+            return res.status(500).json({created: false});
         }
     };
     async update(req: Req, res: Res): Promise<Res<any>> {
@@ -99,10 +110,10 @@ class EmployeesControllers {
     };
     async delete(req: Req, res: Res): Promise<Res<any>> {
         try {
-            return res.json({ok: true});
+            return res.json({deleted: true});
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ok: false});
+            return res.status(500).json({deleted: false});
         }
     };
 }
