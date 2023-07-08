@@ -22,7 +22,7 @@ class ClientsControllers {
             return res.status(200).json({data: client});
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ok: true});
+            return res.status(500).json({ok: false});
         }
     };
     async show(req: Req, res: Res): Promise<Res<any>> {
@@ -47,7 +47,7 @@ class ClientsControllers {
             if (!client) return res.status(404).json({err: "client not found"});
             return res.json({data: client});
         } catch (err) {
-            return res.status(500).json({err: "something went wrong"});
+            return res.status(500).json({ok: false});
         }
     };
     async store(req: Req, res: Res): Promise<Res<any>> {
@@ -83,7 +83,7 @@ class ClientsControllers {
             }});
         } catch (err) {
             console.log(err);
-            return res.status(500).json({err: "something went wrong"});
+            return res.status(500).json({created: false});
         }
     };
     async update(req: Req, res: Res): Promise<Res<any>> {
@@ -114,10 +114,10 @@ class ClientsControllers {
                     birthday: birthday ? new Date(birthday) : client.birthday,
                 }
             })
-            return res.json({ok: true});
+            return res.json({updated: true});
         } catch (err) {
             console.log(err);
-            return res.status(500).json({err: "something went wrong"});
+            return res.status(500).json({updated: false});
         }
     };
     async delete(req: Req, res: Res): Promise<Res<any>> {
@@ -125,7 +125,7 @@ class ClientsControllers {
             return res.json({ok: true});
         } catch (err) {
             console.log(err);
-            return res.status(500).json({err: "something went wrong"});
+            return res.status(500).json({deleted: false});
         }
     };
 }
