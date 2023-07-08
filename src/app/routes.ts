@@ -49,7 +49,8 @@ routes.post("/employee/create", employees.store);
 routes.put("/employee/update/:id", employees.update);
 routes.delete("/employee/delete/:id", employees.delete);
 
-routes.get("/login", auth.login);
-routes.post("/register", auth.register);
+routes.get("/login/client", auth.clientLogin);
+routes.get("/login/employee", auth.employeeLogin);
+routes.get("/login/enterprise", auth.enterpriseLogin);
 
 export default routes;
