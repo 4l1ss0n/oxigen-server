@@ -7,6 +7,7 @@ import employeeRoute from "./employees";
 import enterpriseRoute from "./enterprises";
 import productRoute from "./products";
 import suplierRoute from "./supliers";
+import sendEmailRoute from "./sendingEmail";
 
 const routes = Router();
 
@@ -17,7 +18,8 @@ routes.use([
     employeeRoute,
     enterpriseRoute,
     productRoute,
-    suplierRoute
+    suplierRoute,
+    sendEmailRoute
 ])
 
 export default routes;
