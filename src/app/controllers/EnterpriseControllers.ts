@@ -5,12 +5,18 @@ import bcrypt from "bcrypt";
 class EnterpriseControllers {
     async index(req: Req, res: Res): Promise<Res<any>> {
         try {
-            const enterprise = database.enterprises.findMany();
-            return res.json({data: [
-                enterprise
-            ]});
+            const enterprise = await database.enterprises.findMany({
+                select: {
+                    id: true,
+                    name: true,
+                    _count: true
+                }
+                
+            });
+            return res.json({data: enterprise});
         } catch (err) {
-            return res.status(500).json({ok: true});
+            console.log(err);
+            return res.status(500).json({ok: false});
         }
     };
     async show(req: Req, res: Res): Promise<Res<any>> {
@@ -19,12 +25,22 @@ class EnterpriseControllers {
             const enterprise = await database.enterprises.findUnique({
                 where: {
                     id,
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    fantasyName: true,
+                    corporationEmail: true,
+                    size: true,
+                    cnpj: true,
+                    _count: true
                 }
             })
             if (!enterprise) return res.status(404).json({err: "enterprise not found"});
-            return res.json({ok: true});
+            return res.json({data: enterprise});
         } catch (err) {
-            return res.status(500).json({ok: true});
+            console.log(err);
+            return res.status(500).json({ok: false});
         }
     };
     async store(req: Req, res: Res): Promise<Res<any>> {
@@ -33,32 +49,60 @@ class EnterpriseControllers {
             fantasyName,
             name,
             corporationEmail,
-            password
+            password,
+            size
         } = req.body;
         try {
-            await database.enterprises.create({
+            const enterprise = await database.enterprises.create({
                 data: {
                     cnpj,
-                    corparationEmail: corporationEmail,
+                    corporationEmail,
                     fantasyName,
                     name,
-                    size:2,
+                    size,
                     activeClients:{},
                     convenios: {},
                     accessKey: await bcrypt.hash(password, 2)
                 }
             })
-            return res.json({ok: true});
+            return res.json({
+                created: true,
+                id: enterprise.id
+            });
         } catch (err) {
             console.log(err);
-            return res.status(500).json({ok: true});
+            return res.status(500).json({created: false});
         }
     };
     async update(req: Req, res: Res): Promise<Res<any>> {
+        const {
+            corporationEmail,
+            password,
+            size
+        } = req.body;
+        const {id} = req.params;
         try {
-            return res.json({ok: true});
+            const enterprise = await database.enterprises.findUnique({
+                where: {
+                    id
+                }
+            })
+            if (!enterprise) return res.status(404).json({err: "enterprise not found"});
+
+            await database.enterprises.update({
+                where: {
+                    id
+                },
+                data: {
+                    corporationEmail: corporationEmail ? corporationEmail: enterprise.corporationEmail,
+                    accessKey: password ? await bcrypt.hash(password, 2): enterprise.accessKey,
+                    size: size ? size : enterprise.size
+                }
+            })
+            return res.json({updated: true});
         } catch (err) {
-            return res.status(500).json({ok: true});
+            console.log(err);
+            return res.status(500).json({updated: false});
         }
     };
     async delete(req: Req, res: Res): Promise<Res<any>> {
