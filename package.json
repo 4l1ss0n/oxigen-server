@@ -28,6 +28,7 @@
     "typescript": "^5.0.4"
   },
   "scripts": {
-    "start": "ts-node-dev src/server.ts"
+    "start-dev": "ts-node-dev src/server.ts",
+    "start": "node ./production/server.js"
   }
 }
